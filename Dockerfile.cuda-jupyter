@@ -1,6 +1,10 @@
 FROM sibuzu/cuda-torch
 
-RUN pip install jupyter
+RUN pip install jupyter && \
+    pip install --upgrade matplotlib && \
+    pip install --upgrade pandas && \
+    pip install --upgrade sklearn && \
+    pip install seaborn
 
 RUN mkdir -p /notebook && \
 	mkdir -p /root/.jupyter && \
@@ -12,6 +16,6 @@ RUN mkdir -p /notebook && \
 # Expose Ports for TensorBoard (6006), Ipython (8888)
 EXPOSE 6006 8888
 
-WORKDIR "/notebooks"
+WORKDIR "/notebook"
 
 CMD ["/root/run_jupyter.sh"]
