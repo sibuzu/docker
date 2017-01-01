@@ -1,0 +1,49 @@
+FROM sibuzu/cuda-torch
+
+# numpy / scipy / sklearn
+RUN pip install --upgrade scipy && \
+    pip install --upgrade numpy && \
+    pip install --upgrade sklearn 
+
+# pandas
+RUN pip install --upgrade pandas && \
+    pip install pandas-datareader 
+
+# matplotlib
+RUN pip install --upgrade matplotlib && \
+    pip install seaborn 
+
+# backtrader
+RUN pip install backtrader && \
+    pip install pyfolio
+
+# pydot and graphviz
+RUN apt-get install -y graphviz && \
+    pip install graphviz && \
+    pip install pydot==1.1.0
+
+# TA-Lib
+RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
+    tar -xzf ta-lib-0.4.0-src.tar.gz && \
+    cd ta-lib/ && \
+    ./configure --prefix=/usr && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf ta-lib
+
+RUN git clone https://github.com/mrjbq7/ta-lib.git && \
+    cd ta-lib && \
+    python setup.py install && \
+    cd .. && \
+    rm -rf ta-lib
+
+# Set the locale
+RUN locale-gen en_US.UTF-8  
+RUN echo "export LANG=en_US.UTF-8" >>/etc/profile && \
+    echo "export LANGUAGE=en_US:en" >>/etc/profile && \
+    echo "export LC_ALL=en_US.UTF-8" >>/etc/profile 
+
+# CUSTOM dvol pylib
+VOLUME /dvol
+RUN echo "export PYTHONPATH=/dvol/git/pylib" >>/etc/profile 

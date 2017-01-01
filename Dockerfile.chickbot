@@ -1,0 +1,30 @@
+FROM sibuzu/cuda-sshd
+
+# Install java & gnugo
+RUN apt-get update && \
+    apt-get install -y gnugo  && \
+	apt-get install -y --no-install-recommends openjdk-7-jre-headless && \
+    rm -rf /var/lib/apt/lists/*
+
+# pip
+RUN pip install sgf 
+RUN cd /root && git clone https://github.com/sibuzu/RocAlphaGo.git
+
+# gtp
+RUN cd /root/RocAlphaGo && wget https://raw.githubusercontent.com/jtauber/gtp/master/gtp.py 
+
+# clean	
+RUN	apt-get clean && \
+	apt-get autoremove && \
+	rm -rf /var/lib/apt/lists/* 
+
+# config
+ADD chickbot/ChickBot.ini /root/RocAlphaGo/ChickBot.ini
+ADD chickbot/run.sh /root/RocAlphaGo/run.sh
+
+# RUN echo "export PYTHONPATH=$PYTHONPATH:/root/RocAlphaGo" >> /etc/profile
+ENV PYTHONPATH $PYTHONPATH:/root/RocAlphaGo
+ENV PATH $PATH:/usr/games
+
+WORKDIR /root/RocAlphaGo
+CMD ["./run.sh"]

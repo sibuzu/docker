@@ -1,0 +1,13 @@
+ROM sibuzu/cuda-sshd
+# FROM sibuzu/cuda-tensorflow
+# FROM sibuzu/cuda-jupyter
+
+RUN apt-get update && apt-get install -y python-dev python-pip python-virtualenv gfortran libhdf5-dev pkg-config liblapack-dev libblas-dev
+RUN pip install --upgrade pip setuptools
+RUN pip install betago
+RUN apt-get install -y git
+RUN cd /root && git clone https://github.com/maxpumperla/betago
+
+EXPOSE 22
+WORKDIR "/root/betago"
+CMD ["/usr/bin/python", "run_demo.py"]
