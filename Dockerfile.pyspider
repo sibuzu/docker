@@ -1,0 +1,21 @@
+FROM ubuntu:14.04
+
+# Install some dependencies
+RUN apt-get update && apt-get -y upgrade
+RUN apt-get install -y \
+    python-dev \
+    python-distribute \
+    python-pip \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    python-lxml \
+    libssl-dev \
+    zlib1g-dev
+
+RUN pip install pyspider beautifulsoup4
+
+EXPOSE 5000
+
+WORKDIR /dvol/pyspider
+CMD ["pyspider", "all"]

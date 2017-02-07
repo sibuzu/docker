@@ -1,0 +1,47 @@
+FROM sibuzu/cuda-sshd
+
+RUN apt-get update \
+    && apt-get install -y libav-tools \
+    python-numpy \
+    python-scipy \
+    python-setuptools \
+    libpq-dev \
+    libjpeg-dev \
+    curl \
+    cmake \
+    swig \
+    python-opengl \
+    libboost-all-dev \
+    libsdl2-dev \
+    wget \
+    unzip \
+    git \
+    xpra 
+
+# virtaulgl
+RUN add-apt-repository ppa:bumblebee/stable && \
+    apt-get update && \
+    apt-get install -y virtualgl
+
+RUN apt-get install xvfb
+
+RUN pip install gym[all]
+RUN pip install git+https://github.com/jakevdp/JSAnimation.git
+
+RUN apt-get clean \
+    && rm -rf /var/lib/apt/lists/* 
+
+# Expose Ports for TensorBoard (6006), Ipython (8888)
+EXPOSE 6006 8888 22
+
+WORKDIR "/dvol/notebook"
+
+RUN echo "#!/bin/sh" > /root/run_gym.sh && \
+    echo "service ssh start" >> /root/run_gym.sh && \
+    echo "jupyter notebook --no-browser --ip=0.0.0.0 --notebook-dir=/dvol/notebook" >> /root/run_gym.sh && \
+    chmod a+x /root/run_gym.sh
+
+RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/root/torch/install/lib" >> /etc/profile
+RUN echo "export PATH=$PATH:/home/simon/torch/install/bin:/home/simon/torch/install/bin:/home/simon/torch/install/bin:/home/simon/torch/install/bin:/usr/local/cuda/bin" >> /etc/profile
+    
+CMD ["/root/run_gym.sh"]

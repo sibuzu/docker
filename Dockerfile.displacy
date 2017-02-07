@@ -1,0 +1,15 @@
+FROM sibuzu/syntaxnet
+
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - \
+    && apt-get update \
+    && apt-get install -y nodejs
+
+RUN npm install --global harp
+RUN cd /root && git clone https://github.com/sibuzu/displacy
+
+EXPOSE 9000
+# WORKDIR /root/displacy
+WORKDIR /dvol/git/displacy
+
+CMD ["harp", "server"]
+ 

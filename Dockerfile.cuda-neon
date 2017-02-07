@@ -1,0 +1,16 @@
+FROM sibuzu/cuda-base
+
+# Install dependencies for Caffe
+RUN apt-get update && apt-get install -y \
+		libhdf5-dev && \ 
+		libyaml-dev && \ 
+		libopencv-dev && \ 
+		pkg-config && \
+	apt-get clean && \
+	apt-get autoremove && \
+	rm -rf /var/lib/apt/lists/*
+
+# Install Neon 
+RUN git https://github.com/NervanaSystems/neon.git
+RUN cd /root/neon && \
+	make -j4 -e VIS=true

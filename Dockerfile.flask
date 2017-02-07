@@ -1,0 +1,29 @@
+FROM ubuntu:14.04
+
+# Install some dependencies
+RUN apt-get update && apt-get -y upgrade
+RUN apt-get install -y python-dev python-pip
+RUN apt-get install -y python-PIL
+
+# Install flask
+RUN pip install flask flask-login 
+RUN pip install grequests beautifulsoup4
+RUN pip install supervisor
+
+# Set the locale
+RUN locale-gen en_US.UTF-8  
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8
+
+ENV PYTHONPATH $PYTHONPATH:/dvol/git/pylib
+
+
+EXPOSE 8000
+
+ENV FLASK_APP app.py
+ENV FLASK_DEBUG 1
+
+ADD flask/supervisord.conf /root/supervisord.conf
+
+CMD ["/usr/local/bin/supervisord", "-n", "-c", "/root/supervisord.conf"]
