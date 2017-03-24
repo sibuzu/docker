@@ -1,4 +1,4 @@
-FROM sibuzu/cuda-python3
+FROM sibuzu/python3
 
 # jupyter
 RUN pip3 install jupyter 

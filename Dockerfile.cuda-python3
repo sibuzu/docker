@@ -1,4 +1,4 @@
-FROM sibuzu/cuda-base3
+FROM sibuzu/base3
 
 # Install pip
 RUN apt-get update && apt-get install -y python3-pip && \

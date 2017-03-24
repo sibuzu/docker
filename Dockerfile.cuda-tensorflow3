@@ -1,0 +1,15 @@
+FROM sibuzu/sshd3
+
+# Install TensorFlow
+RUN pip3 --no-cache-dir install \
+	https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.0.0-cp35-cp35m-linux_x86_64.whl
+
+# Install Keras
+RUN pip3 --no-cache-dir install keras
+
+# CUDA library path
+RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/nvidia/lib64" >> /etc/profile 
+
+EXPOSE 22 3888
+WORKDIR "/root"
+CMD ["/root/run_sshd.sh"]
