@@ -1,39 +1,59 @@
-wordpress:
+wp_solarcity:
   image: wordpress
   links:
-    - wordpressdb:mysql
+    - db_solarcity:mysql
   environment:
     - WORDPRESS_DB_PASSWORD=jack6819
   ports:
     - 8080:80
   volumes:
-    - /dvol/wordpress/code:/code
-    - /dvol/wordpress/html:/var/www/html
+    - /dvol/wordpress/solarcity_code:/code
+    - /dvol/wordpress/solarcity_html:/var/www/html
+
+db_solarcity:
+  image: mariadb
+  environment:
+    - MYSQL_ROOT_PASSWORD=jack6819
+    - MYSQL_DATABASE=wordpress
+  volumes:
+    - /dvol/wordpress/solarcity_sql:/var/lib/mysql
 
 wp_deeplearn:
   image: wordpress
   links:
-    - wp_deeplearndb:mysql
+    - db_deeplearn:mysql
   environment:
     - WORDPRESS_DB_PASSWORD=jack6819
   ports:
     - 8088:80
   volumes:
-    - /dvol/wordpress/dlcode:/code
-    - /dvol/wordpress/dlhtml:/var/www/html
+    - /dvol/wordpress/deeplearn_code:/code
+    - /dvol/wordpress/deeplearn_html:/var/www/html
 
-wordpressdb:
+db_deeplearn:
   image: mariadb
   environment:
     - MYSQL_ROOT_PASSWORD=jack6819
     - MYSQL_DATABASE=wordpress
   volumes:
-    - /dvol/wordpress/mysql:/var/lib/mysql
+    - /dvol/wordpress/deeplearn_sql:/var/lib/mysql
 
-wp_deeplearndb:
+wp_solarsuna:
+  image: wordpress
+  links:
+    - db_solarsuna:mysql
+  environment:
+    - WORDPRESS_DB_PASSWORD=jack6819
+  ports:
+    - 80:80
+  volumes:
+    - /dvol/wordpress/solarsuna_code:/code
+    - /dvol/wordpress/solarsuna_html:/var/www/html
+
+db_solarsuna:
   image: mariadb
   environment:
     - MYSQL_ROOT_PASSWORD=jack6819
     - MYSQL_DATABASE=wordpress
   volumes:
-    - /dvol/wordpress/dlsql:/var/lib/mysql
+    - /dvol/wordpress/solarsuna_sql:/var/lib/mysql
