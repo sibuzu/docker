@@ -1,0 +1,18 @@
+FROM sibuzu/cuda-python3
+
+# jupyter
+RUN pip3 install jupyter 
+
+RUN mkdir -p /notebook && \
+	mkdir -p /root/.jupyter && \
+    echo "c.NotebookApp.password = u'sha1:ce1de9f412b1:534f0ac694d0438a92237706db0c977832f8b83e'" > /root/.jupyter/jupyter_notebook_config.py && \
+    echo "#!/bin/sh" > /root/run_jupyter.sh && \
+    echo "jupyter notebook --no-browser --ip=0.0.0.0 --notebook-dir=/dvol/git/notebook3" >> /root/run_jupyter.sh && \
+    chmod a+x /root/run_jupyter.sh
+
+# Expose Ports for Ipython (8888)
+EXPOSE 8888
+
+WORKDIR "/dvol/git/notebook3"
+
+CMD ["/root/run_jupyter.sh"]

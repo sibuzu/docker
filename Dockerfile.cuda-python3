@@ -1,0 +1,73 @@
+FROM sibuzu/cuda-base3
+
+# Install pip
+RUN apt-get update && apt-get install -y python3-pip && \
+	pip3 install --upgrade pip
+
+# Add SNI support to Python
+RUN apt-get update && apt-get install -y \
+		python3-openssl \
+		python3-ndg-httpsclient \
+		python3-pyasn1
+
+# Install useful Python packages using apt-get to avoid version incompatibilities with Tensorflow binary
+# especially numpy, scipy, skimage and sklearn (see https://github.com/tensorflow/tensorflow/issues/2034)
+RUN apt-get update && apt-get install -y \
+		python3-numpy \
+		python3-scipy \
+		python3-nose \
+		python3-h5py \
+		python3-skimage \
+		python3-matplotlib \
+		python3-pandas 
+
+# numpy / scipy / sklearn
+RUN pip3 install --upgrade scipy && \
+    pip3 install --upgrade numpy && \
+    pip3 install --upgrade sklearn 
+
+# pandas
+RUN pip3 install --upgrade pandas && \
+    pip3 install pandas-datareader 
+
+# matplotlib
+RUN pip3 install --upgrade matplotlib && \
+    pip3 install seaborn 
+
+# pydot and graphviz
+RUN apt-get update && apt-get install -y graphviz && \
+    pip3 install graphviz && \
+    pip3 install pydot
+
+# TA-Lib
+RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
+    tar -xzf ta-lib-0.4.0-src.tar.gz && \
+    cd ta-lib/ && \
+    ./configure --prefix=/usr && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf ta-lib
+
+RUN git clone https://github.com/mrjbq7/ta-lib.git && \
+    cd ta-lib && \
+    python3 setup.py install && \
+    cd .. && \
+    rm -rf ta-lib
+
+# Set the locale
+RUN locale-gen en_US.UTF-8  
+RUN echo "export LANG=en_US.UTF-8" >>/etc/profile && \
+    echo "export LANGUAGE=en_US:en" >>/etc/profile && \
+    echo "export LC_ALL=en_US.UTF-8" >>/etc/profile 
+
+RUN apt-get clean && \
+	apt-get autoremove && \
+	rm -rf /var/lib/apt/lists/*
+
+# CUSTOM dvol pylib
+VOLUME /dvol
+RUN echo "export PYTHONPATH=$PYTHONPATH:/dvol/git/pylib" >> /etc/profile 
+
+WORKDIR "/root"
+CMD ["/bin/bash"]
