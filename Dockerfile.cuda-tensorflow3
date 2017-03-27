@@ -7,8 +7,12 @@ RUN pip3 --no-cache-dir install \
 # Install Keras
 RUN pip3 --no-cache-dir install keras
 
+# PATCHES
+pip3 install --upgrade beautifulsoup4
+
 # CUDA library path
 RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/nvidia/lib64" >> /etc/profile 
+RUN echo "export PATH=$PATH:/usr/local/nvidia/bin" >> /etc/profile 
 
 EXPOSE 22 3888
 WORKDIR "/root"
