@@ -1,0 +1,5 @@
+FROM sibuzu/tensorflow3
+
+EXPOSE 22 3888
+WORKDIR "/root"
+CMD ["/root/run_sshd.sh"]

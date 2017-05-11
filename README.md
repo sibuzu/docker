@@ -56,20 +56,16 @@
 
 
 # Build
-<code>
+<pre>
 sudo nvidia-docker build -t sibuzu/base3 -f Dockerfile.cuda-base3 .
-
 sudo nvidia-docker build -t sibuzu/python3 -f Dockerfile.cuda-python3 .
-
 sudo nvidia-docker build -t sibuzu/jupyter3 -f Dockerfile.cuda-jupyter3 .
-
 sudo nvidia-docker build -t sibuzu/sshd3 -f Dockerfile.cuda-sshd3 .
-
 sudo nvidia-docker build -t sibuzu/tensorflow3 -f Dockerfile.cuda-tensorflow3 .
-</code>
+</pre>
 
 # RUN
-<code>
+<pre>
 sudo nvidia-docker run -p 3888:8888 -p 3222:22 -v /dvol:/dvol --name tensorflow3 -d sibuzu/tensorflow3
-</code>
+</pre>
 

@@ -7,8 +7,11 @@ RUN pip3 --no-cache-dir install \
 # Install Keras
 RUN pip3 --no-cache-dir install keras
 
+# Install OpenCV
+RUN apt-get install -y libopencv-dev python-opencv
+
 # PATCHES
-pip3 install --upgrade beautifulsoup4
+RUN pip3 install --upgrade beautifulsoup4
 
 # CUDA library path
 RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/nvidia/lib64" >> /etc/profile 

@@ -1,0 +1,25 @@
+FROM sibuzu/jupyter3
+
+RUN cd ~ && \
+    curl -sL https://deb.nodesource.com/setup_7.x -o nodesource_setup.sh && \
+    bash nodesource_setup.sh && \
+    apt-get install nodejs
+
+RUN cd ~ && \
+    git clone https://github.com/notablemind/jupyter-nodejs.git && \
+    cd jupyter-nodejs && \
+    mkdir -p ~/.ipython/kernels/nodejs/  && \
+    npm install && node install.js && \
+    npm run build && \
+    npm run build-ext 
+
+# nodejs modules
+RUN cd ~/jupyter-nodejs && \
+    npm install googleapis
+
+EXPOSE 22 3888
+
+RUN echo "jupyter notebook --no-browser --ip=0.0.0.0 --notebook-dir=/dvol/git/notebook3" >> /root/run_jupyter.sh && \
+    chmod a+x /root/run_jupyter.sh
+
+CMD ["/root/run_jupyter.sh"]
