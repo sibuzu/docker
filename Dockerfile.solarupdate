@@ -1,0 +1,11 @@
+FROM sibuzu/sshd3
+
+RUN apt-get update && apt-get -y install cron
+
+ADD solarupdate/crontab /etc/cron.d/mycron
+ADD solarupdate/solar_update.py /root/solar_update.py
+
+RUN chmod 0644 /etc/cron.d/mycron
+
+WORKDIR "/root"
+CMD ["/usr/sbin/cron", "-f"]
