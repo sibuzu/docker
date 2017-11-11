@@ -1,6 +1,9 @@
 FROM sibuzu/sshd3
 
 RUN apt-get update && apt-get -y install cron
+RUN pip3 install --upgrade beautifulsoup4
+RUN pip3 install --upgrade html5lib
+RUN pip3 install python-firebase
 
 ADD solarupdate/crontab /etc/cron.d/mycron
 ADD solarupdate/solar_update.py /root/solar_update.py

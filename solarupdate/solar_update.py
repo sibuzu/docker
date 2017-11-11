@@ -140,7 +140,6 @@ if __name__ == '__main__':
 
     year, month, day = dt.year, dt.month, dt.day
     print("{:%Y-%m-%d %H:%M:%S}: get solar data of {}-{:02}-{:02}".format(datetime.now(), year, month, day))
-    exit()
 
     plist = ['112', '113']
     stations = ['solar01', 'solar02']
