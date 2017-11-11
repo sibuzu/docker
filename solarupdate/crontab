@@ -1,2 +1,2 @@
-* * * * * root echo "hello alive" >> /dvol/log/solarupdate.log 2>&1
-2,17,32,47 * * * * root echo "python3 /root/solar_update.py" >> /dvol/log/solarupdate.log 2>&1
+### * * * * * root echo "hello alive" >> /dvol/log/solarupdate.log 2>&1
+2,17,32,47 * * * * root python3 /root/solar_update.py >> /dvol/log/solarupdate.log 2>&1
