@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+ 
 import sys
 import pandas as pd
 import requests
@@ -76,7 +78,10 @@ def get_solar_station_data(year, month, day, plist):
 def write_solar_db(df, station):
     fb = firebase.FirebaseApplication('https://solar-0.firebaseio.com', None)
 
-    for index, row in df.iterrows():
+    power = {}
+    total = {}
+    dpath = '/power/' + station
+    for _, row in df.iterrows():
         if row["H05":"H18"].isnull().all():
             break
 
@@ -86,17 +91,22 @@ def write_solar_db(df, station):
         month = int(month)
         day = int(day)
         dstr = "{}{:02}{:02}".format(year, month, day)
-        inv = "inv{:02}".format(dev)
-        dpath = '/db/{}/power/{}'.format(station, inv)
-        power = {}
         for t in range(5, 19):
-            hour = "{:02}".format(t)
-            col = "H" + hour
+            inv_hour = "inv{:02}_{:02}".format(dev, t)
+            col = "H{:02}".format(t)
             val = float(row[col])
-            power[hour] = val
-        print(dpath, dstr, power)
-        fb.put(dpath, dstr, power)
+            if dstr not in power:
+                power[dstr] = {}
+                total[dstr] = 0
+            power[dstr][inv_hour] = val
+            total[dstr] += val
 
+    for dstr in power:   
+        power[dstr]["total"] = total[dstr]
+        print(dpath.encode('utf-8'), dstr, power[dstr])
+        fb.put(dpath, dstr, power[dstr])
+
+# sunshine website: http://e-service.cwb.gov.tw/HistoryDataQuery/
 sunshine_tbls = {}
 sunshine_url = "http://e-service.cwb.gov.tw/HistoryDataQuery/DayDataController.do?command=viewMain&station=467440&stname=%25E9%25AB%2598%25E9%259B%2584&datepicker="
 def get_sunshine(year, month, day, hour):
@@ -125,7 +135,7 @@ def update_sunshine_date(dt):
         if sunshine is not None:
             vals["{:02}".format(hour)] = sunshine
     if vals:
-        print(station, dstr, vals)
+        print(station.encode('utf-8'), dstr, vals)
         fb.put(station, dstr, vals)
 
 if __name__ == '__main__':
@@ -142,7 +152,7 @@ if __name__ == '__main__':
     print("{:%Y-%m-%d %H:%M:%S}: get solar data of {}-{:02}-{:02}".format(datetime.now(), year, month, day))
 
     plist = ['112', '113']
-    stations = ['solar01', 'solar02']
+    stations = ['正霆', '禹日']
     dfs = get_solar_station_data(year, month, day, plist)
 
     for df, station in zip(dfs, stations):
