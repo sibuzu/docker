@@ -169,7 +169,9 @@ def getRawdataFromDb(stationName, inv, dstr):
         data['05:00:00'] = [0.0,0.0,0.0,0.0]
 
     # convert dict to DataFrame
-    return pd.DataFrame.from_dict(data, orient='index')
+    df = pd.DataFrame.from_dict(data, orient='index')
+    df = df.sort_index()
+    return df
     
 def updateSolarPower(stations, year, month, day):   
     for _, stationName, _, _ in stations: 
@@ -203,7 +205,7 @@ def updateSolarPower(stations, year, month, day):
         firebaseDb.put(dpath, dstr, data)
 
     print("--------------------------------------")
-    print("{}-{:02}-{:02} power is updated".format(year, month, day))
+    print("{:%Y-%m-%d %H:%M:%S}: power is copied".format(datetime.now()))
     print("--------------------------------------")
 
 def cpSolarLastRawDb(stations, year, month, day):   
@@ -230,7 +232,7 @@ def cpSolarLastRawDb(stations, year, month, day):
     firebaseDb.put('/', 'rawdata', dataAll)
 
     print("--------------------------------------")
-    print("{}-{:02}-{:02} last rawdata is copied".format(year, month, day))
+    print("{:%Y-%m-%d %H:%M:%S}: rawdata is copied".format(datetime.now()))
     print("--------------------------------------")
 
 def updateSolarRawDb(year, month, day, hour, stations):
@@ -269,7 +271,7 @@ def updateSolarRawDb(year, month, day, hour, stations):
     # rawdata section
     updateSolarRawdata(sess, year, month, day, hour, stations)    
     print("--------------------------------------")
-    print("{}-{:02}-{:02} rawdata is updated".format(year, month, day))
+    print("{:%Y-%m-%d %H:%M:%S}: rawdata is updated".format(datetime.now()))
     print("--------------------------------------")
 
 def lastHour(rawdata):
@@ -309,7 +311,7 @@ def updateSunshineDb(dt):
     if vals:
         firebaseDb.put(dpath, dstr, vals)
         print("--------------------------------------")
-        print("{}-{:02}-{:02} sunshine is updated".format(year, month, day))
+        print("{:%Y-%m-%d %H:%M:%S}: sunshine is updated".format(datetime.now()))
         print("--------------------------------------")
 
 if __name__ == '__main__':
