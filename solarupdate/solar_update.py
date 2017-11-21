@@ -49,17 +49,19 @@ def updateSolarAlarmlog(sess, year, stations):
         data['ctl00$ctl00$MainContent$ContentPlaceHolder1$txtStationDropDownList'] = stationId
         page = sess.post(urlQuery, data=data)
         dfs = pd.read_html(page.text, header=0)
-        if len(dfs) < 2 or len(dfs[1]) == 0:
+        n = len(dfs)
+        if n < 2 or len(dfs[n-1]) == 0:
             continue
-        df = dfs[1]
-
+        df = dfs[n-1]
+        # print(df)
+        
         for _, row in df.iterrows():
             timetag = row['發生時間'].replace('/','-')
             inv = row['設備']
             code = row['警報代碼']
             desc = row['描述']
             msg = "INV{:02},{},{}".format(inv, code, desc)
-            print(timetag, msg)
+            print(timetag, msg.encode('utf-8'))
 
             # write to db /alarmlog/正霆/"2017-11-16 18:05:02"
             # dpath = /alarmlog/正霆/
@@ -128,9 +130,11 @@ def updateSolarRawdata(sess, year, month, day, hour, stations):
                     # we don't want to wait to long in case the server busy
                     page = sess.post(urlQuery, data=data, timeout=20)
                     dfs = pd.read_html(page.text, header=0)
-                    if len(dfs) < 2 or len(dfs[1]) == 0:
+                    n = len(dfs)
+                    if n < 2 or len(dfs[n-1]) == 0:
                         continue
-                    df = dfs[1]
+                    df = dfs[n-1]
+                    
                     cols = df.columns[[0,1,2,3,7]]
                     for index, row in df[cols].iterrows():
                         time = row[0][-8:]
