@@ -9,6 +9,9 @@ ADD solarupdate/crontab /etc/cron.d/mycron
 ADD solarupdate/solar_update.py /root/solar_update.py
 
 RUN chmod 0644 /etc/cron.d/mycron
+RUN git config --global user.email "mingshing.su@gmail.com"
+RUN git config --global user.name "MingShing Su"
+RUN git config --global push.default simple
 
 WORKDIR "/root"
 CMD ["/usr/sbin/cron", "-f"]
