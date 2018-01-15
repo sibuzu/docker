@@ -334,8 +334,11 @@ if __name__ == '__main__':
     
     # sunshine
     prevday = dt - timedelta(days=1)
-    updateSunshineDb(prevday)
-
+    try:
+        updateSunshineDb(prevday)
+    except Exception as ex:
+        print("failed to updateSunshineDb", ex)
+    
     # station: stationId, stationName, deviceStartId, deviceEndId
     stations = [('112','正霆',918,932), ('113','禹日',933,947)]
     updateSolarRawDb(year, month, day, hour, stations)
