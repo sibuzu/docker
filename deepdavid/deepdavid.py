@@ -17,16 +17,16 @@ def init():
     config=tf.ConfigProto(gpu_options=gpu_options)
     session = tf.Session(config=config)
 
-    logger.info("loading model " + MODEL_BULL)
-    modelBull = load_model(MODEL_BULL)
+    # logger.info("loading model " + MODEL_BULL)
+    # modelBull = load_model(MODEL_BULL)
     logger.info("loading model " + MODEL_BEAR)
     modelBear = load_model(MODEL_BEAR)
-    modelBull.summary()
+    # modelBull.summary()
     modelBear.summary()
     logger.info("models loaded")
 
-    return modelBull, modelBear
+    return None, modelBear
 
 def predict(model, X):
-    y = np.round(model.predict(X).flatten())
+    y = np.round(model.predict(X).flatten(), batch_size=8192)
     return y

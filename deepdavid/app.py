@@ -53,8 +53,9 @@ def hello():
 def deep_david():
     try:
         app.logger.info("call deep_david")
-        model = request.values.get("model")
-        inputs = request.values.get("inputs")
+        contents = request.json
+        model = contents.get("model")
+        inputs = contents.get("inputs")
         if not model:
             req_error('no model paramters')
         if not inputs:
