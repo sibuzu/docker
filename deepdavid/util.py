@@ -9,6 +9,8 @@ logger = logging.getLogger('deepdavid')
 #decoding an image from base64 into raw representation
 def str2ary(inputs):
     ary = np.loadtxt(StringIO(inputs), delimiter=',')
+    if ary.ndim==1:
+        ary = ary.reshape(1, len(ary))
     return ary
 
 def ary2str(ary):
