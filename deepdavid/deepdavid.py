@@ -3,13 +3,15 @@ from keras.models import load_model
 import tensorflow as tf
 import logging
 import os
+import glob
 
 from util import *
 
 logger = logging.getLogger('deepdavid')
 
-global MODELS
+global MODELS, TMPMODELS
 MODELS = {}
+TMPMODELS = {}
 
 # modelname: "Bull", "Bear"
 # model inputs (17 parameters)
@@ -27,13 +29,24 @@ def init_gpu():
 def loadmodel(modelname):
     if modelname in MODELS:
         return MODELS[modelname]
-    fname = "ModelDavid{}.h5".format(modelname)
-    if os.path.isfile(fname):
-        MODELS[modelname] = load_model(fname)
-        logger.info("model {} loaded".format(fname))
+    # fname = "ModelDavid{}.h5".format(modelname)
+    if os.path.isfile(modelname):
+        MODELS[modelname] = load_model(modelname)
+        logger.info("model {} loaded".format(modelname))
         return MODELS[modelname]
     else:
-        req_error("Cannot load model " + fname)
+        if modelname in TMPMODELS:
+            return TMPMODELS[modelname]
+        # try to local last model
+        tmp = modelname[:-9] + "*" + ".h5"
+        files = sorted(glob.glob(tmp))
+        if len(files) == 0:
+            req_error("Cannot load model " + modelname)
+        tmpmodelname = files[-1]
+        TMPMODELS[modelname] = load_model(tmpmodelname)
+        logger.info("cannot load model {}, use {} instead".format(modelname, tmpmodelname))
+        print("cannot load model {}, use {} instead".format(modelname, tmpmodelname))
+        return TMPMODELS[modelname]
 
 def expand(X):
     N = 161

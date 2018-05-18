@@ -44,6 +44,9 @@ def deep_david():
         mode = contents.get("mode")
         model = contents.get("model")
         inputs = contents.get("inputs")
+        country = contents.get("country")
+        buysell = contents.get("buysell")
+        
         if not model:
             req_error('no model paramters')
         if not mode:
@@ -52,8 +55,29 @@ def deep_david():
             req_error('no inputs parameters')
         
         ary = str2ary(inputs)
-        app.logger.info("model: {}, mode: {}, inputs: {}x{}".format(model, mode, *ary.shape))
-        outputs = predict(model, mode, ary)
+
+        if not country:
+            # old request
+            modelname = "ModelDavid{}.h5".format(model)
+        else:
+            # new request
+            mpath = "/dvol/deepmodels"
+            if country=="tw":
+                ctag = "T"
+            elif country=="jp":
+                ctag = "J"
+            elif country=="us":
+                ctag = "A"
+            else:
+                assert "invalid country: " + country
+            bs = "Bull" if buysell=="bull" else "Bear"
+            modelname = "{}/{}/Model{}{}{}.h5".format(mpath, country, ctag, bs, model[-6:])
+
+        app.logger.info("model: {}, mode: {}, country: {}, buysell: {}, inputs: {}x{}".format(
+            model, mode, country, buysell, *ary.shape))
+        app.logger.info("modelname: {}".format(modelname))
+        outputs = predict(modelname, mode, ary)
+        
         return ary2str(outputs)
 
     except Exception as ex:
