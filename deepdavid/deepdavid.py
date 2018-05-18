@@ -22,7 +22,7 @@ def init_gpu():
     # prevent tensorflow to use all gpu memory
     # config = tf.ConfigProto()
     # config.gpu_options.allow_growth = True
-    gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.03)
+    gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.2)
     config=tf.ConfigProto(gpu_options=gpu_options)
     tf.Session(config=config)
 
