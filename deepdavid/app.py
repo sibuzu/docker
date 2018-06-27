@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request
+from flask import Flask, render_template, request
 from werkzeug.exceptions import BadRequest
 import numpy as np
 import logging
@@ -7,6 +7,7 @@ import sys
 
 # local modules
 from deepdavid import init_gpu, predict
+from deeptorch import init_torch, torch_predict
 from util import *
 
 #initalize our flask app
@@ -30,6 +31,7 @@ app.logger.error("-error log test")
 print("---load tensorflow model")
 app.logger.info("load tensorflow model")
 init_gpu()
+init_torch()
 
 @app.route('/hello/',methods=['GET','POST'])
 def hello():
@@ -46,7 +48,11 @@ def deep_david():
         inputs = contents.get("inputs")
         country = contents.get("country")
         buysell = contents.get("buysell")
+        pytorch = contents.get("pytorch")
+        ensemble = contents.get("ensemble", "A")
         
+        pytorch = int(pytorch) if pytorch else 0
+
         if not model:
             req_error('no model paramters')
         if not mode:
@@ -61,7 +67,6 @@ def deep_david():
             modelname = "ModelDavid{}.h5".format(model)
         else:
             # new request
-            mpath = "/dvol/deepmodels"
             if country=="tw":
                 ctag = "T"
             elif country=="jp":
@@ -71,12 +76,21 @@ def deep_david():
             else:
                 assert "invalid country: " + country
             bs = "Bull" if buysell=="bull" else "Bear"
-            modelname = "{}/{}/Model{}{}{}.h5".format(mpath, country, ctag, bs, model[-6:])
 
-        app.logger.info("model: {}, mode: {}, country: {}, buysell: {}, inputs: {}x{}".format(
-            model, mode, country, buysell, *ary.shape))
+            if pytorch:
+                mpath = "/dvol/deepmodels/pytorch"
+                modelname = "{}/{}/Model{}{}.mdl".format(mpath, country, ctag, model[-6:])
+            else:
+                mpath = "/dvol/deepmodels"
+                modelname = "{}/{}/Model{}{}{}.h5".format(mpath, country, ctag, bs, model[-6:])
+
+        app.logger.info("model: {}, mode: {}, country: {}, pytorch: {}, buysell: {}, ensemble: {}, inputs: {}x{}".format(
+            model, mode, country, pytorch, buysell, ensemble, *ary.shape))
         app.logger.info("modelname: {}".format(modelname))
-        outputs = predict(modelname, mode, ary)
+        if pytorch:
+            outputs = torch_predict(modelname, mode, ary, buysell, ensemble)
+        else:
+            outputs = predict(modelname, mode, ary)
         
         return ary2str(outputs)
 
@@ -86,3 +100,4 @@ def deep_david():
 if __name__ == "__main__":
     app.logger.info("start service")
     app.run(host='0.0.0.0', port=5800, use_reloader=False)
+

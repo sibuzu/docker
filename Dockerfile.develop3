@@ -1,17 +1,15 @@
 FROM sibuzu/tensorflow3
 
-RUN pip3 install --upgrade zipline
+# install pytorch
+RUN pip3 install --upgrade pip 
+RUN pip3 install --upgrade torch torchvision
+RUN pip3 install --upgrade graphviz
 
-# force empyrical to 0.2.2 (0.3 is not compatible)
-RUN pip3 install empyrical==0.2.2
-
-# fix yahoo finance is down, using google finance alternative
-RUN cd /usr/local/lib/python3.5/dist-packages/zipline/data &&
-    rm -f benchmarks.py &&
-    wget https://raw.githubusercontent.com/zipline-live/zipline/ph_live/zipline/data/benchmarks.py
-
-# fetch quantopian-quandl
-RUN zipline ingest -b quantopian-quandl
+# Set the locale
+RUN locale-gen en_US.UTF-8  
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8
 
 EXPOSE 22 3888
 WORKDIR "/root"

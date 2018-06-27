@@ -1,11 +1,13 @@
 FROM sibuzu/sshd3
 
+# upgrade pip3
+RUN pip3 install --upgrade pip
+
 # Install TensorFlow
-RUN pip3 --no-cache-dir install \
-	https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.0.0-cp35-cp35m-linux_x86_64.whl
+RUN pip3 install tensorflow==1.2
 
 # Install Keras
-RUN pip3 --no-cache-dir install keras
+RUN pip3 install keras
 
 # Install OpenCV
 RUN apt-get install -y libopencv-dev python-opencv

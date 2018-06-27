@@ -1,10 +1,11 @@
 FROM sibuzu/python3
 
-# jupyter
 RUN pip3 install tensorflow-gpu==1.2
 RUN pip3 install keras
 RUN pip3 install flask
 RUN pip3 install git+https://github.com/Supervisor/supervisor
+
+RUN pip3 install torch torchvision
 
 # Expose Ports for Ipython (5800)
 EXPOSE 5800
