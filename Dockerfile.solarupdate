@@ -7,6 +7,7 @@ RUN pip3 install python-firebase
 
 ADD solarupdate/crontab /etc/cron.d/mycron
 ADD solarupdate/solar_update.py /root/solar_update.py
+ADD solarupdate/solarpanel_update.py /root/solarpanel_update.py
 
 RUN chmod 0644 /etc/cron.d/mycron
 RUN git config --global user.email "mingshing.su@gmail.com"
