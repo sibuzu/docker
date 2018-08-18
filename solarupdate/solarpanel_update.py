@@ -122,7 +122,9 @@ def getSolarRawdata(sdata, sess, stations):
         stationdata = {}
         for did in range(dstart, dend + 1):
             inv = "inv{:02}".format(did - dstart + 1)
-            rawdata = inverters[inv]["data"]
+            rawdata = {}
+            if "data" in inverters[inv]:
+                rawdata = inverters[inv]["data"]
 
             end_hour = t.hour
             if rawdata:
@@ -448,8 +450,9 @@ def updateSkwAlarmlog(sdata, sess, year, stations):
             code = row['警報代碼']
             desc = row['描述']
             msg = "INV{:02},{},{}".format(inv, code, desc)
-            print(sname, timetag, msg.encode('utf-8'))
-            station['alarmlog'][timetag] = msg
+            if code != 'DEF23':
+                print(sname, timetag, msg.encode('utf-8'))
+                station['alarmlog'][timetag] = msg
 
 if __name__ == '__main__':
     print("update solarpanel")
