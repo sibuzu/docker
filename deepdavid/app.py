@@ -69,12 +69,15 @@ def deep_david():
             # new request
             if country=="tw":
                 ctag = "T"
+            elif country=="twn":
+                ctag = "N"
             elif country=="jp":
                 ctag = "J"
             elif country=="us":
                 ctag = "A"
             else:
-                assert "invalid country: " + country
+                raise "invalid country: " + country
+
             bs = "Bull" if buysell=="bull" else "Bear"
 
             if pytorch:
@@ -88,7 +91,7 @@ def deep_david():
             model, mode, country, pytorch, buysell, ensemble, *ary.shape))
         app.logger.info("modelname: {}".format(modelname))
         if pytorch:
-            outputs = torch_predict(modelname, mode, ary, buysell, ensemble)
+            outputs = torch_predict(modelname, mode, country, ary, buysell, ensemble)
         else:
             outputs = predict(modelname, mode, ary)
         

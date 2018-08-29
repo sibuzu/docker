@@ -1,9 +1,18 @@
 FROM sibuzu/tensorflow3
 
 # install pytorch
-RUN pip3 install --upgrade pip 
-RUN pip3 install --upgrade torch torchvision
+RUN pip3 install pip==10.0.1
+RUN pip3 install http://download.pytorch.org/whl/cu80/torch-0.4.1-cp35-cp35m-linux_x86_64.whl 
+RUN pip3 install torchvision
 RUN pip3 install --upgrade graphviz
+RUN pip3 install --upgrade pandas
+
+# reinstall versiion
+RUN pip3 install keras==2.1.5
+
+# copy font for matplotlib
+RUN mkdir -p /usr/share/fonts/truetype/droid
+ADD develop3/DroidSansFallbackFull.ttf /usr/share/fonts/truetype/droid/
 
 # Set the locale
 RUN locale-gen en_US.UTF-8  
@@ -11,6 +20,11 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8
 
+RUN echo "#!/bin/sh" > /root/run_develop3.sh && \
+    echo "service ssh start" >> /root/run_develop3.sh && \
+    echo "jupyter notebook --allow-root --no-browser --ip=0.0.0.0 --notebook-dir=/dvol/git/notebook3" >> /root/run_develop3.sh && \
+    chmod a+x /root/run_develop3.sh
+
 EXPOSE 22 3888
 WORKDIR "/root"
-CMD ["/root/run_sshd.sh"]
+CMD ["/root/run_develop3.sh"]

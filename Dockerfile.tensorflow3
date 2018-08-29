@@ -7,7 +7,7 @@ RUN pip3 install --upgrade pip
 RUN pip3 install tensorflow==1.2
 
 # Install Keras
-RUN pip3 install keras
+RUN pip3 install keras==2.1.5
 
 # Install OpenCV
 RUN apt-get install -y libopencv-dev python-opencv

@@ -16,6 +16,7 @@ TMPMODELS = {}
 # modelname: "Bull", "Bear"
 # model inputs (17 parameters)
 # ['權證','台50','中100','小型股','上櫃','區間N','漲跌7%','T1開盤比','RB1','RB2','RB3','UD1','UD2','UD3','VOL1','VOL2','VOL3']
+# ['權證','台50','中100','小型股','上櫃','區間N','漲跌7%','T0開盤比','T0高價比','T0低價比','T0收盤比','RB1','RB2','RB3','UD1','UD2','UD3','VOL1','VOL2','VOL3']
 
 def init_gpu():
     logger.info("set gpu bound")

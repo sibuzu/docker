@@ -5,7 +5,8 @@ RUN pip3 install keras
 RUN pip3 install flask
 RUN pip3 install git+https://github.com/Supervisor/supervisor
 
-RUN pip3 install torch torchvision
+RUN pip3 install http://download.pytorch.org/whl/cu80/torch-0.4.1-cp35-cp35m-linux_x86_64.whl 
+RUN pip3 install torchvision
 
 # Expose Ports for Ipython (5800)
 EXPOSE 5800
@@ -19,7 +20,7 @@ ENV LC_ALL en_US.UTF-8
 ENV FLASK_APP app.py
 ENV FLASK_DEBUG 1
 
-COPY deepdavid/ /root/
+COPY ./deepdavid/* /root/
 
 WORKDIR /root
 CMD ["/usr/local/bin/supervisord", "-n", "-c", "/root/supervisord.conf"]
