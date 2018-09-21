@@ -95,7 +95,11 @@ def loadmodel(modelname, country):
         # params = torch.load(modelname)
         # print(params.keys())
         # print(model.state_dict().keys())
-        model.load_state_dict(torch.load(modelname))
+        if use_cuda:
+            model.load_state_dict(torch.load(modelname))
+        else:
+            # for cpu only, such as google server, solution
+            model.load_state_dict(torch.load(modelname, map_location=lambda storage, loc: storage))
         _modelname = modelname
         _tmpmodelname = ""
         logger.info("model {} loaded".format(modelname))
