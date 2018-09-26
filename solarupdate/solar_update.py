@@ -337,7 +337,7 @@ if __name__ == '__main__':
     try:
         updateSunshineDb(prevday)
     except Exception as ex:
-        print("failed to updateSunshineDb", ex)
+        print("failed to updateSunshineDb", str(ex).encode('utf-8'))
     
     # station: stationId, stationName, deviceStartId, deviceEndId
     stations = [('112','正霆',918,932), ('113','禹日',933,947)]
