@@ -1,0 +1,56 @@
+FROM nvidia/cuda:9.0-cudnn7-devel
+
+# RUN echo -e "\n**********************\nNVIDIA Driver Version\n**********************\n" && \
+#	cat /proc/driver/nvidia/version && \
+#	echo -e "\n**********************\nCUDA Version\n**********************\n" && \
+#	nvcc -V && \
+#	echo -e "\n\nBuilding your Deep Learning Docker Image...\n"
+
+### python 3
+RUN apt-get update && apt-get install -y python3-pip && pip3 install --upgrade pip
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+### numpy, matplotlib, pandas
+RUN pip3 install numpy matplotlib pandas
+
+### jupyter
+RUN pip3 install jupyter 
+RUN mkdir -p /root/.jupyter && mkdir -p /dvol
+RUN echo "c.NotebookApp.password = u'sha1:ce1de9f412b1:534f0ac694d0438a92237706db0c977832f8b83e'" > /root/.jupyter/jupyter_notebook_config.py 
+
+### tensorflow, keras
+RUN pip3 install tensorflow-gpu keras 
+
+### pytorch
+RUN pip3 install torch torchvision 
+
+### gym
+RUN apt-get install -y python3-opengl
+RUN pip3 install PyOpenGL
+RUN pip3 install piglet
+RUN pip3 install pyglet
+RUN pip3 install JSAnimation
+RUN pip3 install ipywidgets
+RUN apt-get install -y swig
+RUN apt-get install -y xvfb
+RUN pip3 install gym[all]
+RUN pip3 install box2d
+RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension
+ENV DEBIAN_FRONTEND teletype
+
+### locale
+RUN apt-get install -y locales
+RUN locale-gen en_US.UTF-8  
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8
+
+### start up script
+RUN echo "#!/bin/sh" > /root/run.sh
+RUN echo "xvfb-run -s \"-screen 0 1400x900x24\" jupyter notebook --allow-root --no-browser --ip=0.0.0.0 --notebook-dir=/dvol/git/notebook3" >> /root/run.sh
+RUN chmod a+x /root/run.sh
+
+### start command
+EXPOSE 8888
+WORKDIR "/root"
+CMD ["/root/run.sh"]
