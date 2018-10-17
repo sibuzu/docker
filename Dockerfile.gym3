@@ -1,0 +1,37 @@
+FROM sibuzu/develop3
+
+# update matplotlib
+# RUN pip3 install -U matplotlib
+# cannot update, because it is not compatible with gym
+
+# install gym env
+RUN pip3 install PyOpenGL
+RUN pip3 install piglet
+RUN pip3 install pyglet
+RUN pip3 install JSAnimation
+RUN pip3 install ipywidgets
+
+# install gym
+RUN apt-get install -y swig
+RUN apt-get install -y xvfb
+RUN pip3 install gym[all]
+RUN pip3 install box2d
+
+# Set the locale
+RUN locale-gen en_US.UTF-8  
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8
+
+RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension
+ENV DEBIAN_FRONTEND teletype
+
+RUN echo "#!/bin/sh" > /root/run_gym3.sh && \
+    echo "service ssh start" >> /root/run_gym3.sh && \
+    echo "xvfb-run -s \"-screen 0 1400x900x24\" jupyter notebook --allow-root --no-browser --ip=0.0.0.0 --notebook-dir=/dvol/git/notebook3" \
+        >> /root/run_gym3.sh
+RUN chmod a+x /root/run_gym3.sh
+
+EXPOSE 22 3888
+WORKDIR "/root"
+CMD ["/root/run_gym3.sh"]
