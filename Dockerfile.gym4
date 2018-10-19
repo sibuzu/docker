@@ -38,12 +38,24 @@ RUN pip3 install box2d
 RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension
 ENV DEBIAN_FRONTEND teletype
 
+# Install OpenCV
+RUN apt-get install -y libopencv-dev python-opencv
+RUN pip3 install opencv-python
+
 ### locale
 RUN apt-get install -y locales
 RUN locale-gen en_US.UTF-8  
 ENV LANG en_US.UTF-8  
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8
+
+### timezone
+ENV TZ 'Asia/Taipei'
+RUN echo $TZ > /etc/timezone
+RUN apt-get install -y tzdata
+RUN rm -f /etc/localtime && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
+RUN dpkg-reconfigure -f noninteractive tzdata
+RUN apt-get clean
 
 ### start up script
 RUN echo "#!/bin/sh" > /root/run.sh

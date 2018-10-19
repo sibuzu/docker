@@ -1,0 +1,52 @@
+FROM nvidia/cuda:9.0-cudnn7-devel
+
+### python 3
+RUN apt-get update && apt-get install -y python3-pip && pip3 install --upgrade pip
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+### numpy, matplotlib, pandas
+RUN pip3 install numpy matplotlib pandas
+
+### jupyter
+RUN pip3 install jupyter 
+RUN mkdir -p /root/.jupyter && mkdir -p /dvol
+RUN echo "c.NotebookApp.password = u'sha1:ce1de9f412b1:534f0ac694d0438a92237706db0c977832f8b83e'" > /root/.jupyter/jupyter_notebook_config.py 
+
+### tensorflow, keras
+RUN pip3 install tensorflow-gpu keras 
+
+### pytorch
+RUN pip3 install torch torchvision 
+
+### flask & supervisor
+RUN apt-get install -y git
+RUN pip3 install flask
+RUN pip3 install git+https://github.com/Supervisor/supervisor
+ENV FLASK_APP app.py
+ENV FLASK_DEBUG 1
+
+### locale
+RUN apt-get install -y locales
+RUN locale-gen en_US.UTF-8  
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8
+
+### timezone
+ENV TZ 'Asia/Taipei'
+RUN echo $TZ > /etc/timezone
+RUN apt-get install -y tzdata
+RUN rm -f /etc/localtime && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime 
+RUN dpkg-reconfigure -f noninteractive tzdata
+RUN apt-get clean
+
+### pytorch single gpu for compatibility
+ENV CUDA_VISIBLE_DEVICES 0 
+
+### start up script
+COPY ./deepdavid/* /root/
+
+### start command
+EXPOSE 5800
+WORKDIR "/root"
+CMD ["/usr/local/bin/supervisord", "-n", "-c", "/root/supervisord.conf"]
