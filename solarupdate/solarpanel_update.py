@@ -170,7 +170,7 @@ def getSolarRawdata(sdata, sess, stations):
             except requests.exceptions.Timeout:
                 print("** request timeout **")
             except Exception as ex:
-                print(ex)
+                print(str(ex).encode('utf-8'))
                 # sys.exit(1)
                 
             inverters[inv]["data"] = reduceInvData(rawdata)
@@ -369,7 +369,7 @@ def getAuoAlarmlog(plant):
             continue
         msg = "INV{},{},{}".format(inv, code, desc)
         dt = "{} INV{}".format(dt, inv)
-        print(dt, msg)
+        print(dt, msg.encode('utf-8'))
         alarmlog[dt] = msg
     return alarmlog
 
