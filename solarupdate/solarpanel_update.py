@@ -460,13 +460,13 @@ if __name__ == '__main__':
     # print(str(sdata).encode('utf-8'))
 
     # skw rawdata
-    stations = [('112','正霆',918,932,'S01'), ('113','禹日',933,947,'S02')]
+    stations = [('113','禹日',933,947,'S02')]
     sess = getSkwSession()
     
     getSolarRawdata(sdata, sess, stations)
 
     # auo rawdata
-    plants = [("S03", 'BDL018030128', 6), ("S04", 'BDL018030166', 17)]
+    plants = [("S01", "BDL018030127", 15), ("S03", 'BDL018030128', 6), ("S04", 'BDL018030166', 17)]
 
     for plant in plants:
         getAuoInverters(sdata, plant[0], plant[1], plant[2])
