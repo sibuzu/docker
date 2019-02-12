@@ -6,7 +6,7 @@ from logging.handlers import RotatingFileHandler
 import sys
 
 # local modules
-# from deepdavid import init_gpu, predict
+from deepdavid import init_gpu, predict
 from deeptorch import init_torch, torch_predict
 from util import *
 
@@ -30,7 +30,7 @@ app.logger.error("-error log test")
 #initialize these variables
 print("---load tensorflow model")
 app.logger.info("load tensorflow model")
-# init_gpu()
+init_gpu()
 init_torch()
 
 @app.route('/hello/',methods=['GET','POST'])
@@ -90,12 +90,10 @@ def deep_david():
         app.logger.info("model: {}, mode: {}, country: {}, pytorch: {}, buysell: {}, ensemble: {}, inputs: {}x{}".format(
             model, mode, country, pytorch, buysell, ensemble, *ary.shape))
         app.logger.info("modelname: {}".format(modelname))
-        if True:
+        if pytorch:
             outputs = torch_predict(modelname, mode, country, ary, buysell, ensemble)
         else:
-            output = [0] * ary.shape[0]
-            # not support anymore
-            # outputs = predict(modelname, mode, ary)
+            outputs = predict(modelname, mode, ary)
         
         return ary2str(outputs)
 
