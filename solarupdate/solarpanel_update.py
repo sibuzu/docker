@@ -275,6 +275,8 @@ def getAuoInverters(sdata, sname, plant, inv_count):
             strValue = "{},{},{},{}".format(V, I, KW, Power)
             if tstr < "05:00:00" or tstr >= "19:00:00":
                 continue
+            if float(Power) <= 1:
+                continue
             inv[tag] = strValue
         
         inverters["inv{:02}".format(uid)]["data"] = inv
@@ -466,7 +468,11 @@ if __name__ == '__main__':
     getSolarRawdata(sdata, sess, stations)
 
     # auo rawdata
-    plants = [("S01", "BDL018030127", 15), ("S03", 'BDL018030128', 6), ("S04", 'BDL018030166', 17)]
+    plants = [("S01", "BDL018030127", 15), 
+        ("S03", 'BDL018030128', 6),
+        ("S04", 'BDL018030166', 17), 
+        ("S05", 'BDL018090293', 4), 
+        ("S06", 'BDL018090292', 9)]
 
     for plant in plants:
         getAuoInverters(sdata, plant[0], plant[1], plant[2])
