@@ -76,7 +76,7 @@ if __name__ == '__main__':
                 for akey in sorted(alarmlog):
                     if akey[:10] >= today_str:
                         astr = alarmlog[akey].split(',')
-                        alarm_str += sname + ' ' + akey[11:] + astr[1] + ' ' + astr[2] + '\n'
+                        alarm_str += sname + ' ' + akey[11:] + ' ' + astr[1] + ' ' + astr[2] + '\n'
         except Exception as ex:
             print("except: {}".format(ex))
 
