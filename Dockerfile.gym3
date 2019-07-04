@@ -17,6 +17,12 @@ RUN apt-get install -y xvfb
 RUN pip3 install gym[all]
 RUN pip3 install box2d
 
+# install pandoc
+RUN apt-get update 
+RUN apt-get install -y texlive texlive-latex-extra pandoc
+RUN apt-get install -y texlive-xetex
+RUN apt-get install -y texlive-full latex-cjk-all
+
 # Set the locale
 RUN locale-gen en_US.UTF-8  
 ENV LANG en_US.UTF-8  
