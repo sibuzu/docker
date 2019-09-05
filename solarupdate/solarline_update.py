@@ -17,18 +17,6 @@ def loadStationData():
     sdata = firebaseDb.get(dpath, "stations")
     return sdata
 
-def updateAlarmCount(sdata):
-    for sname, station in sdata.items():
-        today = (datetime.now()-timedelta(hours=5)).strftime('%Y-%m-%d')
-        n = 0
-        if 'alarmlog' in station:
-            # print(">>>", station['alarmlog'])
-            alarmlist = [x for x in station['alarmlog'].keys() if x >= today]
-            n = len(alarmlist)
-            # print(today, alarmlist)
-        station['summary']['alarm_count'] = n
-        print("{}: {}".format(sname, n))
-
 def linebotMessage(msg):
     url = 'https://script.google.com/macros/s/AKfycbx7wcXkvYReFbTOuPQnYvSorB59AuZpIFNwWvmH/exec'
     jstr = { "events" : [{
@@ -40,12 +28,7 @@ def linebotMessage(msg):
     # print('linebot msg: {}'.format(msg.encode('utf-8')))
     print('linebot result: {}'.format(r.status_code))
 
-if __name__ == '__main__':
-    print("update solarline")
-    
-    sdata = loadStationData()
-    # print(str(sdata).encode('utf-8'))
-
+def lineUpdate(sdata):
     today = datetime.now() - timedelta(hours=5)
 
     # power
@@ -85,3 +68,12 @@ if __name__ == '__main__':
     print("--------------------------------------")
     print("{:%Y-%m-%d %H:%M:%S}: solarline is updated".format(datetime.now()))
     print("--------------------------------------")
+
+if __name__ == '__main__':
+    print("update solarline")
+    
+    sdata = loadStationData()
+    # print(str(sdata).encode('utf-8'))
+
+    lineUpdate(sdate)
+

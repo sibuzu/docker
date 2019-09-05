@@ -369,6 +369,8 @@ def getAuoAlarmlog(plant):
             continue
         if code == 'AU219':   # 0 kWh
             continue
+        if code == 'W0008':   # De-rating W07
+            continue
         msg = "INV{},{},{}".format(inv, code, desc)
         dt = "{} INV{}".format(dt, inv)
         print(dt, msg.encode('utf-8'))
@@ -456,6 +458,58 @@ def updateSkwAlarmlog(sdata, sess, year, stations):
                 print(sname, timetag, msg.encode('utf-8'))
                 station['alarmlog'][timetag] = msg
 
+def linebotMessage(msg):
+    url = 'https://script.google.com/macros/s/AKfycbx7wcXkvYReFbTOuPQnYvSorB59AuZpIFNwWvmH/exec'
+    jstr = { "events" : [{
+        "replyToken" : "",
+        "message" : {"text":msg}}]
+    }
+
+    r = requests.post(url, json = jstr)
+    # print('linebot msg: {}'.format(msg.encode('utf-8')))
+    print('linebot result: {}'.format(r.status_code))
+
+def linebotUpdate(sdata):
+    today = datetime.now() - timedelta(hours=5)
+
+    # power
+    today_str = "{:%Y%m%d}".format(today)
+    power_str = ''
+    for skey in sorted(sdata.keys()):
+        try:
+            station = sdata[skey]
+            sname = station['info']['name']       
+            power = station['power']['day'][today_str] / station['info']['station_scale']  
+            warning = station['summary']['alarm_count']
+            power_str += '{} 發電量:{:.2f} 警示:{}\n'.format(sname, power, warning)
+        except Exception as ex:
+            print("except: {}".format(ex))
+
+    linebotMessage('!power ' + power_str.strip())
+    # print(power_str.encode('utf-8'))
+
+    # alarm
+    today_str = "{:%Y-%m-%d}".format(today)
+    alarm_str = ''
+    for skey in sorted(sdata.keys()):
+        try:
+            station = sdata[skey]
+            sname = station['info']['name']
+            if 'alarmlog' in station:
+                alarmlog = station['alarmlog']
+                for akey in sorted(alarmlog):
+                    if akey[:10] >= today_str:
+                        astr = alarmlog[akey].split(',')
+                        alarm_str += sname + ' ' + akey[11:] + ' ' + astr[1] + ' ' + astr[2] + '\n'
+        except Exception as ex:
+            print("except: {}".format(ex))
+
+    linebotMessage('!alarm ' + alarm_str.strip())
+
+    print("--------------------------------------")
+    print("{:%Y-%m-%d %H:%M:%S}: solarline is updated".format(datetime.now()))
+    print("--------------------------------------")
+
 if __name__ == '__main__':
     print("update solarpanel")
     sdata = loadStationData()
@@ -468,7 +522,7 @@ if __name__ == '__main__':
     getSolarRawdata(sdata, sess, stations)
 
     # auo rawdata
-    plants = [("S01", "BDL018030127", 15), 
+    plants = [("S01", "BDL019010006", 15), 
         ("S03", 'BDL018030128', 6),
         ("S04", 'BDL018030166', 17), 
         ("S05", 'BDL018090293', 4), 
@@ -499,3 +553,5 @@ if __name__ == '__main__':
     print("--------------------------------------")
     print("{:%Y-%m-%d %H:%M:%S}: solarpanel is updated".format(datetime.now()))
     print("--------------------------------------")
+
+    linebotUpdate(sdata)
