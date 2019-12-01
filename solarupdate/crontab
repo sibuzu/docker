@@ -1,5 +1,4 @@
 ### * * * * * root echo "hello alive" >> /dvol/log/solarupdate.log 2>&1
-*/5 6-19 * * * root (python3 /root/solar_update.py; python3 /root/solarpanel_update.py) >> /dvol/log/solarupdate.log 2>&1
-5,20,35,50 * * * * root (python3 /root/gold_update.py)
-# 0 6-19 * * * root (python3 /root/solar_update.py; python3 /root/solarpanel_update.py) >> /dvol/log/solarupdate.log 2>&1
+*/10 6-19 * * * root (python3 /root/solar_update.py; python3 /root/solarpanel_update.py) >> /dvol/log/solarupdate.log 2>&1
+# 5,20,35,50 * * * * root (python3 /root/gold_update.py)
 0 21 * * * root (cd /dvol/git/solardb-backup; python3 ./solardb-backup.py) >> /dvol/log/solar-backup.log 2>&1
