@@ -10,6 +10,7 @@ ADD solarupdate/solar_update.py /root/solar_update.py
 ADD solarupdate/solarpanel_update.py /root/solarpanel_update.py
 ADD solarupdate/solarline_update.py /root/solarline_update.py
 ADD solarupdate/gold_update.py /root/gold_update.py
+ADD solarupdate/txinfo_update.py /root/txinfo_update.py
 
 RUN chmod 0644 /etc/cron.d/mycron
 RUN git config --global user.email "mingshing.su@gmail.com"

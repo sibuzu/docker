@@ -8,7 +8,7 @@ import sys
 # local modules
 # from deepdavid import init_gpu, predict
 from deeptorch import init_torch, torch_predict
-from util import *
+from util import req_error, ary2str, str2ary
 
 #initalize our flask app
 app = Flask("deepdavid")
@@ -75,14 +75,16 @@ def deep_david():
                 ctag = "J"
             elif country=="us":
                 ctag = "A"
+            elif country=="cn":
+                ctag = "C"
             else:
-                raise "invalid country: " + country
+                raise Exception("invalid country: " + country)
 
             bs = "Bull" if buysell=="bull" else "Bear"
 
             if pytorch:
                 mpath = "/dvol/deepmodels/pytorch"
-                modelname = "{}/{}/Model{}{}.mdl".format(mpath, country, ctag, model[-6:])
+                modelname = get_model(mpath, country, ctag, model)
             else:
                 mpath = "/dvol/deepmodels"
                 modelname = "{}/{}/Model{}{}{}.h5".format(mpath, country, ctag, bs, model[-6:])
@@ -93,7 +95,7 @@ def deep_david():
         if True:
             outputs = torch_predict(modelname, mode, country, ary, buysell, ensemble)
         else:
-            output = [0] * ary.shape[0]
+            outputs = [0] * ary.shape[0]
             # not support anymore
             # outputs = predict(modelname, mode, ary)
         
@@ -101,6 +103,12 @@ def deep_david():
 
     except Exception as ex:
         req_error(str(ex))
+
+def get_model(mpath, country, ctag, model):
+    if country == "cn":
+        return "{}/{}/{}.mdl".format(mpath, country, model)
+    else:
+        return "{}/{}/Model{}{}.mdl".format(mpath, country, ctag, model[-6:])
 
 if __name__ == "__main__":
     app.logger.info("start service")

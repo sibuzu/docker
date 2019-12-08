@@ -19,9 +19,10 @@ kwargs = {'num_workers': 2, 'pin_memory': True} if use_cuda else {}
 
 logger = logging.getLogger('deepdavid')
 
-global _model17, _model20, _modelname
+global _model17, _model20, _model21, _modelname
 _model17 = None
 _model20 = None
+_model21 = None
 _modelname = ""
 _tmpmodelname = ""
 
@@ -75,17 +76,33 @@ class Net(nn.Module):
         return self.net(x)
 
 def init_torch():
-    global _model17, _model20
+    global _model17, _model20, _model21
     logger.info("setup device {}, {}".format(device, kwargs))
     if _model17 is None:
         _model17 = Net(17, 64).to(device)
     if _model20 is None:
         _model20 = Net(20, 64).to(device)
+    if _model21 is None:
+        _model21 = Net(21, 64).to(device)
 
 def loadmodel(modelname, country):
-    global _model17, _model20, _modelname, _tmpmodelname
+    global _model17, _model20, _model21, _modelname, _tmpmodelname
 
-    model = _model20 if country == 'twn' else _model17
+    if country == 'tw':
+        model = _model17
+    elif country == 'twn':
+        model = _model20
+    elif country == 'cn':
+        # logger.info("modelname: " + modelname)
+        if modelname[-14:-11] in ["CN3", "CN4"]: 
+            # logger.info("20")
+            model = _model20   # 隔日沖，收盤進場，無T1比
+        else:
+            # logger.info("21")
+            model = _model21   # 當沖/隔日沖，開盤進場
+    else:
+        raise Exception('no support country: ' + country)
+
     if _modelname == modelname:
         return model
 
@@ -138,7 +155,10 @@ def ModifiedName(modelname, ensemble):
 
 def torch_predict(modelname, mode, country, X, buysell, ensemble):
     n = len(ensemble)
-    if n == 1:  ## 'A', 'B', 'C'
+    # logger.info("n=" + str(n))
+    if n == 0:  ## no ensemble
+        predict =  torch_predict_kern(modelname, mode, country, X, buysell)    
+    elif n == 1:  ## 'A', 'B', 'C'
         name1 = ModifiedName(modelname, ensemble)
         predict =  torch_predict_kern(name1, mode, country, X, buysell)
     elif n == 3: ## 'A+B', 'AxB'
