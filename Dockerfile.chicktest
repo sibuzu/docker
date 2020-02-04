@@ -10,7 +10,7 @@ RUN pip3 install git+https://github.com/Supervisor/supervisor
 RUN pip3 install numpy matplotlib pandas
 
 RUN pip3 install flask
-RUN pip3 install flask_bootstrap flask_wtf flask_basicauth
+RUN pip3 install flask_bootstrap4 flask_wtf flask_basicauth
 RUN pip3 install requests tables
 
 # Expose Ports for flask (5000)
