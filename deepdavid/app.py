@@ -43,16 +43,14 @@ def deep_david():
     try:
         app.logger.info("call deep_david")
         contents = request.json
+        country = contents.get("country")
+        
         mode = contents.get("mode")
         model = contents.get("model")
         inputs = contents.get("inputs")
-        country = contents.get("country")
         buysell = contents.get("buysell")
-        pytorch = contents.get("pytorch")
         ensemble = contents.get("ensemble", "A")
         
-        pytorch = int(pytorch) if pytorch else 0
-
         if not model:
             req_error('no model paramters')
         if not mode:
@@ -62,42 +60,38 @@ def deep_david():
         
         ary = str2ary(inputs)
 
-        if not country:
-            # old request
-            modelname = "ModelDavid{}.h5".format(model)
+        app.logger.info("model: {}, mode: {}, country: {}, buysell: {}, ensemble: {}, inputs: {}x{}".format(
+            model, mode, country, buysell, ensemble, *ary.shape))
+
+        # new request
+        if country=="tw":
+            ctag = "T"
+        elif country=="twn":
+            ctag = "N"
+        elif country=="jp":
+            ctag = "J"
+        elif country=="us":
+            ctag = "A"
+        elif country=="cn":
+            ctag = "C"
+        elif country=="cn2":
+            ctag = "C"
+        elif country=="cn3":
+            ctag = "C"
         else:
-            # new request
-            if country=="tw":
-                ctag = "T"
-            elif country=="twn":
-                ctag = "N"
-            elif country=="jp":
-                ctag = "J"
-            elif country=="us":
-                ctag = "A"
-            elif country=="cn":
-                ctag = "C"
-            else:
-                raise Exception("invalid country: " + country)
+            raise Exception("invalid country: " + country)
 
-            bs = "Bull" if buysell=="bull" else "Bear"
+        bs = "Bull" if buysell=="bull" else "Bear"
 
-            if pytorch:
-                mpath = "/dvol/deepmodels/pytorch"
-                modelname = get_model(mpath, country, ctag, model)
-            else:
-                mpath = "/dvol/deepmodels"
-                modelname = "{}/{}/Model{}{}{}.h5".format(mpath, country, ctag, bs, model[-6:])
+        # pytorch version
+        mpath = "/dvol/deepmodels/pytorch"
+        modelname = get_model(mpath, country, ctag, model)
 
-        app.logger.info("model: {}, mode: {}, country: {}, pytorch: {}, buysell: {}, ensemble: {}, inputs: {}x{}".format(
-            model, mode, country, pytorch, buysell, ensemble, *ary.shape))
+        app.logger.info("model: {}, mode: {}, country: {}, buysell: {}, ensemble: {}, inputs: {}x{}".format(
+            model, mode, country, buysell, ensemble, *ary.shape))
         app.logger.info("modelname: {}".format(modelname))
-        if True:
-            outputs = torch_predict(modelname, mode, country, ary, buysell, ensemble)
-        else:
-            outputs = [0] * ary.shape[0]
-            # not support anymore
-            # outputs = predict(modelname, mode, ary)
+        
+        outputs = torch_predict(modelname, mode, country, ary, buysell, ensemble)
         
         return ary2str(outputs)
 
@@ -105,7 +99,7 @@ def deep_david():
         req_error(str(ex))
 
 def get_model(mpath, country, ctag, model):
-    if country == "cn":
+    if country[:2] == "cn":
         return "{}/{}/{}.mdl".format(mpath, country, model)
     else:
         return "{}/{}/Model{}{}.mdl".format(mpath, country, ctag, model[-6:])

@@ -19,10 +19,11 @@ kwargs = {'num_workers': 2, 'pin_memory': True} if use_cuda else {}
 
 logger = logging.getLogger('deepdavid')
 
-global _model17, _model20, _model21, _modelname
+global _model17, _model20, _model21, _model32, _modelname
 _model17 = None
 _model20 = None
 _model21 = None
+_model32 = None
 _modelname = ""
 _tmpmodelname = ""
 
@@ -49,7 +50,7 @@ class BasicBlock(nn.Module):
         return out
 
 class Net(nn.Module):
-    def __init__(self, inputs, N):
+    def __init__(self, inputs, N, outputs):
         super(Net, self).__init__()
 
         N2 = N // 2
@@ -67,7 +68,7 @@ class Net(nn.Module):
             nn.Linear(N, N2),
             nn.ReLU(),
             nn.BatchNorm1d(N2),
-            nn.Linear(N2, 2),
+            nn.Linear(N2, outputs),
         )
         self.optimizer = optim.Adam(self.parameters())
         self.loss = None
@@ -76,17 +77,19 @@ class Net(nn.Module):
         return self.net(x)
 
 def init_torch():
-    global _model17, _model20, _model21
+    global _model17, _model20, _model21, _model32
     logger.info("setup device {}, {}".format(device, kwargs))
     if _model17 is None:
-        _model17 = Net(17, 64).to(device)
+        _model17 = Net(17, 64, 2).to(device)
     if _model20 is None:
-        _model20 = Net(20, 64).to(device)
+        _model20 = Net(20, 64, 2).to(device)
     if _model21 is None:
-        _model21 = Net(21, 64).to(device)
+        _model21 = Net(21, 64, 2).to(device)
+    if _model32 is None:
+        _model32 = Net(32, 64, 1).to(device)
 
 def loadmodel(modelname, country):
-    global _model17, _model20, _model21, _modelname, _tmpmodelname
+    global _model17, _model20, _model21, _model32, _modelname, _tmpmodelname
 
     if country == 'tw':
         model = _model17
@@ -100,6 +103,8 @@ def loadmodel(modelname, country):
         else:
             # logger.info("21")
             model = _model21   # 當沖/隔日沖，開盤進場
+    elif country == 'cn2' or country == 'cn3':
+        model = _model32
     else:
         raise Exception('no support country: ' + country)
 
@@ -150,20 +155,24 @@ def expand(X, N):
     # print(X[:N, 7])
     return X
 
-def ModifiedName(modelname, ensemble):
-    return modelname[:-10] + ensemble + modelname[-10:]
+def ModifiedName(modelname, country, ensemble):
+    if country == "cn2" or country == "cn3":
+        pre, post = modelname.rsplit('_', 1)
+        return "{}_{}_{}".format(pre, ensemble, post)
+    else:
+        return modelname[:-10] + ensemble + modelname[-10:]
 
 def torch_predict(modelname, mode, country, X, buysell, ensemble):
     n = len(ensemble)
-    # logger.info("n=" + str(n))
+    logger.info("len(ensemble)=" + str(n))
     if n == 0:  ## no ensemble
         predict =  torch_predict_kern(modelname, mode, country, X, buysell)    
     elif n == 1:  ## 'A', 'B', 'C'
-        name1 = ModifiedName(modelname, ensemble)
+        name1 = ModifiedName(modelname, country, ensemble)
         predict =  torch_predict_kern(name1, mode, country, X, buysell)
     elif n == 3: ## 'A+B', 'AxB'
-        name1 = ModifiedName(modelname, ensemble[0])
-        name2 = ModifiedName(modelname, ensemble[2])
+        name1 = ModifiedName(modelname, country, ensemble[0])
+        name2 = ModifiedName(modelname, country, ensemble[2])
         predict1 =  torch_predict_kern(name1, mode, country, X, buysell)
         predict2 =  torch_predict_kern(name2, mode, country, X, buysell)
         predict = predict1 + predict2
@@ -177,14 +186,14 @@ def torch_predict(modelname, mode, country, X, buysell, ensemble):
         thresh = int(ensemble[3])
         predict = 0
         for tag in glist:
-            name = ModifiedName(modelname, tag)
+            name = ModifiedName(modelname, country, tag)
             px = torch_predict_kern(name, mode, country, X, buysell)
             predict = predict + px
         predict = np.where(predict>=thresh, 1, 0)
     elif n == 5: ## 'A+B+C', 'AxBxC', 'A#B#C'
-        name1 = ModifiedName(modelname, ensemble[0])
-        name2 = ModifiedName(modelname, ensemble[2])
-        name3 = ModifiedName(modelname, ensemble[4])
+        name1 = ModifiedName(modelname, country, ensemble[0])
+        name2 = ModifiedName(modelname, country, ensemble[2])
+        name3 = ModifiedName(modelname, country, ensemble[4])
         predict1 =  torch_predict_kern(name1, mode, country, X, buysell)
         predict2 =  torch_predict_kern(name2, mode, country, X, buysell)
         predict3 =  torch_predict_kern(name3, mode, country, X, buysell)
@@ -214,10 +223,16 @@ def torch_predict_kern(modelname, mode, country, X, buysell):
         testX = torch.from_numpy(X).float().to(device)
         predict = model(testX).cpu()
     predict = np.where(predict > 0, 1, 0)
-    y = predict[:,0] + predict[:,1] * 2
-    y[y>2] = 0
-    if buysell=="bull":
-        y = np.where(y==1, 1, 0)
-    else:
-        y = np.where(y==2, 1, 0)
+    nout = predict.shape[1]
+    if nout == 2:
+        y = predict[:,0] + predict[:,1] * 2
+        y[y>2] = 0
+        if buysell=="bull":
+            y = np.where(y==1, 1, 0)
+        else:
+            y = np.where(y==2, 1, 0)
+    else:  # nout == 1
+        y = predict[:,0]
+
+    torch.cuda.empty_cache()
     return y
