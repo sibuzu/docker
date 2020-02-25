@@ -72,16 +72,11 @@ def deep_david():
             ctag = "J"
         elif country=="us":
             ctag = "A"
-        elif country=="cn":
-            ctag = "C"
-        elif country=="cn2":
-            ctag = "C"
-        elif country=="cn3":
+        elif country[:2]=="cn":   #cn, cn2, cn3
             ctag = "C"
         else:
-            raise Exception("invalid country: " + country)
-
-        bs = "Bull" if buysell=="bull" else "Bear"
+            ctag = "X"
+            app.logger.info("extended country: " + country)
 
         # pytorch version
         mpath = "/dvol/deepmodels/pytorch"

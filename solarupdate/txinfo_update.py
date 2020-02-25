@@ -26,7 +26,7 @@ def logit(*args, **kwargs):
 sess = requests.Session()
 
 def linebotMessage(msg):
-    url = 'https://script.google.com/macros/s/AKfycbx7wcXkvYReFbTOuPQnYvSorB59AuZpIFNwWvmH/exec'
+    url = 'https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec'
     jstr = { "events" : [{
         "replyToken" : "",
         "message" : {"text":msg}}]

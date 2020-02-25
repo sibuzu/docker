@@ -106,7 +106,8 @@ def loadmodel(modelname, country):
     elif country == 'cn2' or country == 'cn3':
         model = _model32
     else:
-        raise Exception('no support country: ' + country)
+        model = _model32
+        logger.info("extened model {}, using _model32".format(country))
 
     if _modelname == modelname:
         return model
@@ -149,14 +150,19 @@ def loadmodel(modelname, country):
 
 def expand(X, N):
     exary = np.linspace(-0.8, 0.8, N)
-    rows = X.shape[0]
+    rows, cols = X.shape
+    logger.info("expand input size: {}x{}".format(rows, cols))
     X = np.repeat(X, N, axis=0)
-    X[:, 7] = np.tile(exary, rows)
+    if cols == 32:
+        # new format, fixed 32
+        X[:, 11] = np.tile(exary, rows)
+    else:
+        X[:, 7] = np.tile(exary, rows)
     # print(X[:N, 7])
     return X
 
 def ModifiedName(modelname, country, ensemble):
-    if country == "cn2" or country == "cn3":
+    if country in ["cn2", "cn3", "cn4"]:
         pre, post = modelname.rsplit('_', 1)
         return "{}_{}_{}".format(pre, ensemble, post)
     else:

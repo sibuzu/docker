@@ -10,6 +10,8 @@ import dateutil
 import json
 import calendar
 
+global auo_auth, auo_sess
+
 firebaseDb = firebase.FirebaseApplication('https://solarpanel-0.firebaseio.com', None)
 
 def loadStationData():
@@ -261,8 +263,9 @@ def getAuoInverters(sdata, sname, plant, inv_count):
         inv = {}
         url = 'https://gms.auo.com/BenQWebDBsource/RawData/GetRawDataValue?pck={}&uid=COM1_{:03}&sTime={}&eTime={}'
         url = url.format(plant, uid, date, date)
+        url += auo_auth
         # print(url)
-        jtxt = requests.get(url).text
+        jtxt = auo_sess.get(url).text
         db = json.loads(jtxt)
         for rec in db:
             tag = rec["CollectionTime"]
@@ -352,11 +355,12 @@ def updateAlarmCount(sdata):
         station['summary']['alarm_count'] = n
         print("{}: {}".format(sname, n))
 
-def getAuoAlarmlog(plant):
+def getAuoAlarmlog(plantNo):
     url = 'https://gms.auo.com/BenQWebDBsource/eventlog/GetPlantMonthlyMIEvent?plantNo={}&currentPlantMonth={}/{}&timeZoneOffset=8&timeType=UTC&lang=zh-TW&format=json'
     t = datetime.now()
-    url = url.format(plant,t.year,t.month)
-    jtxt = requests.get(url).text
+    url = url.format(plantNo,t.year,t.month)
+    url += auo_auth
+    jtxt = auo_sess.get(url).text
     js = json.loads(jtxt)
     alarmlog = {}
     for x in js:
@@ -387,14 +391,14 @@ def mergeAlarmlog(alarmlog1, alarmlog2, keepdays):
     
     return merged
 
-def updateAuoAlarmlog(sdata, sname, plant, keepdays):
+def updateAuoAlarmlog(sdata, sname, plantNo, keepdays):
     station = sdata[sname]
     today = datetime.now().strftime('%Y-%m-%d')
     
     if 'alarmlog' not in station:
         station['alarmlog'] = {}
     
-    alarmlog = getAuoAlarmlog(plant)
+    alarmlog = getAuoAlarmlog(plantNo)
         
     # calc today alarm count
     station['alarmlog'] = mergeAlarmlog(station['alarmlog'], alarmlog, keepdays)
@@ -459,7 +463,7 @@ def updateSkwAlarmlog(sdata, sess, year, stations):
                 station['alarmlog'][timetag] = msg
 
 def linebotMessage(msg):
-    url = 'https://script.google.com/macros/s/AKfycbx7wcXkvYReFbTOuPQnYvSorB59AuZpIFNwWvmH/exec'
+    url = 'https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec'
     jstr = { "events" : [{
         "replyToken" : "",
         "message" : {"text":msg}}]
@@ -511,34 +515,57 @@ def linebotUpdate(sdata):
     print("--------------------------------------")
 
 if __name__ == '__main__':
+    global auo_sess, auo_auth
+
     print("update solarpanel")
     sdata = loadStationData()
     # print(str(sdata).encode('utf-8'))
 
-    # skw rawdata
-    stations = [('113','禹日',933,947,'S02')]
-    sess = getSkwSession()
-    
-    getSolarRawdata(sdata, sess, stations)
+    try:
+        # skw rawdata
+        stations = [('113','禹日',933,947,'S02')]
+        sess = getSkwSession()
+        
+        getSolarRawdata(sdata, sess, stations)
+    except Exception as e:
+        print("SKW connected failed: {}".format(e))
 
     # auo rawdata
-    plants = [("S01", "BDL019010006", 15), 
-        ("S03", 'BDL018030128', 6),
-        ("S04", 'BDL018030166', 17), 
-        ("S05", 'BDL018090293', 4), 
-        ("S06", 'BDL018090292', 9)]
+    auo_stations = ['S01', 'S03', 'S04', 'S05', 'S06']
+    auo_plant = ['BDL019010006', 'BDL018030128', 'BDL018030166', 'BDL018090293', 'BDL018090292']
+    auo_inv_count = [15, 6, 17, 4, 9]
+    auo_plant_no = ['FtFX5R2OWN6TRYQjx9FY2lJfycHgbewh',                 
+                    'vmgir6%2fO1xvtYRpG%2bHfyNXFxW3doOCmM',
+                    '%2b%2fX%2bYmSVNIe6rs0ILML6OapKlHUsr40i',
+                    'VGOenUX2zYigKgRRLmgietSn3DHgN7de',
+                    'x1JWgEJ3PPtW86WHAa5vUAUdJs4OGBmL']
 
-    for plant in plants:
+    auo_plants = list(zip(auo_stations, auo_plant, auo_inv_count, auo_plant_no))
+
+    # get auo sess & auth
+    auo_url = ('https://gms.auo.com/BenQWebDBsource/home/GetUserVerification'
+        + '?Act=PTb%252bmMptQgQZvOMluyVfZiLJlq5q81cI7Kjd85Eiu%252f04EHJJCemOlw%253d%253d'
+        + '&psw=ubujmVaYKrYwfu3Zcw0haakajw7RDBti')
+
+    auo_sess = requests.Session()
+    page = auo_sess.get(auo_url)
+    js = json.loads(page.text)
+    auo_auth = '&Authority=' + js['Authority']
+
+    for plant in auo_plants:
         getAuoInverters(sdata, plant[0], plant[1], plant[2])
-
 
     # get skw alarmlog
     today = datetime.now() - timedelta(hours=5)
-    updateSkwAlarmlog(sdata, sess, today.year, stations)  
+    try:
+        if sess:
+            updateSkwAlarmlog(sdata, sess, today.year, stations)  
+    except Exception as e:
+        print("skw alarmlog failed: {}".format(e))
 
     # get auo alarmlog 
-    for plant in plants:
-        updateAuoAlarmlog(sdata, plant[0], plant[1], 30)
+    for plant in auo_plants:
+        updateAuoAlarmlog(sdata, plant[0], plant[3], 30)
     
     # update hour, day, month
     dtag = today.strftime("%Y%m%d")

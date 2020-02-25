@@ -1,16 +1,18 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 # Install some dependencies
 RUN apt-get update && apt-get -y upgrade
-RUN apt-get install -y python-dev python-pip
-RUN apt-get install -y python-PIL
+RUN apt-get install -y python3-dev python3-pip
+RUN pip3 install --upgrade pip
 
 # Install flask
-RUN pip install flask flask-login 
-RUN pip install grequests beautifulsoup4
-RUN pip install supervisor
+RUN pip3 install flask flask-login 
+RUN pip3 install grequests beautifulsoup4
+RUN pip3 install supervisor
+RUN pip3 install Pillow
 
 # Set the locale
+RUN apt-get install -y locales
 RUN locale-gen en_US.UTF-8  
 ENV LANG en_US.UTF-8  
 ENV LANGUAGE en_US:en  
