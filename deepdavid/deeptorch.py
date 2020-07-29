@@ -19,11 +19,12 @@ kwargs = {'num_workers': 2, 'pin_memory': True} if use_cuda else {}
 
 logger = logging.getLogger('deepdavid')
 
-global _model17, _model20, _model21, _model32, _modelname
+global _model17, _model20, _model21, _model32, _model32x1, _modelname
 _model17 = None
 _model20 = None
 _model21 = None
 _model32 = None
+_model32x1 = None
 _modelname = ""
 _tmpmodelname = ""
 
@@ -79,35 +80,26 @@ class Net(nn.Module):
 def init_torch():
     global _model17, _model20, _model21, _model32
     logger.info("setup device {}, {}".format(device, kwargs))
-    if _model17 is None:
-        _model17 = Net(17, 64, 2).to(device)
-    if _model20 is None:
-        _model20 = Net(20, 64, 2).to(device)
-    if _model21 is None:
-        _model21 = Net(21, 64, 2).to(device)
-    if _model32 is None:
-        _model32 = Net(32, 64, 1).to(device)
 
 def loadmodel(modelname, country):
-    global _model17, _model20, _model21, _model32, _modelname, _tmpmodelname
+    global _model17, _model20, _model21, _model32x1, _model32, _modelname, _tmpmodelname
 
     if country == 'tw':
+        _model17 = _model17 or Net(17, 64, 2).to(device)
         model = _model17
+        logger.info("use model _model17 of {}".format(country))
     elif country == 'twn':
+        _model20 = _model20 or Net(20, 64, 2).to(device)
         model = _model20
-    elif country == 'cn':
-        # logger.info("modelname: " + modelname)
-        if modelname[-14:-11] in ["CN3", "CN4"]: 
-            # logger.info("20")
-            model = _model20   # 隔日沖，收盤進場，無T1比
-        else:
-            # logger.info("21")
-            model = _model21   # 當沖/隔日沖，開盤進場
-    elif country == 'cn2' or country == 'cn3':
-        model = _model32
+        logger.info("use model _model20 of {}".format(country))
+    elif country in ['cn2', 'cn3', 'cn4', 'cn21']:
+        _model32x1 = _model32x1 or Net(32, 64, 1).to(device)
+        model = _model32x1
+        logger.info("use model _model32x1 of {}".format(country))
     else:
+        _model32 = _model32 or Net(32, 64, 2).to(device)
         model = _model32
-        logger.info("extened model {}, using _model32".format(country))
+        logger.info("use model _model32 of {}".format(country))
 
     if _modelname == modelname:
         return model
@@ -162,11 +154,15 @@ def expand(X, N):
     return X
 
 def ModifiedName(modelname, country, ensemble):
-    if country in ["cn2", "cn3", "cn4"]:
+    if country in ["tw", "twn"]:
+        return modelname[:-10] + ensemble + modelname[-10:]
+    elif country in ["cn21"]:
         pre, post = modelname.rsplit('_', 1)
+        ensemble = "M{:02}".format(ord(ensemble) - ord('A'))
         return "{}_{}_{}".format(pre, ensemble, post)
     else:
-        return modelname[:-10] + ensemble + modelname[-10:]
+        pre, post = modelname.rsplit('_', 1)
+        return "{}_{}_{}".format(pre, ensemble, post)
 
 def torch_predict(modelname, mode, country, X, buysell, ensemble):
     n = len(ensemble)

@@ -64,20 +64,13 @@ def deep_david():
             model, mode, country, buysell, ensemble, *ary.shape))
 
         # new request
-        if country=="tw":
+        if country in "tw" :
             ctag = "T"
         elif country=="twn":
             ctag = "N"
-        elif country=="jp":
-            ctag = "J"
-        elif country=="us":
-            ctag = "A"
-        elif country[:2]=="cn":   #cn, cn2, cn3
-            ctag = "C"
         else:
-            ctag = "X"
-            app.logger.info("extended country: " + country)
-
+            ctag = ""
+ 
         # pytorch version
         mpath = "/dvol/deepmodels/pytorch"
         modelname = get_model(mpath, country, ctag, model)
@@ -94,10 +87,10 @@ def deep_david():
         req_error(str(ex))
 
 def get_model(mpath, country, ctag, model):
-    if country[:2] == "cn":
-        return "{}/{}/{}.mdl".format(mpath, country, model)
-    else:
+    if ctag:
         return "{}/{}/Model{}{}.mdl".format(mpath, country, ctag, model[-6:])
+    else:
+        return "{}/{}/{}.mdl".format(mpath, country, model)
 
 if __name__ == "__main__":
     app.logger.info("start service")

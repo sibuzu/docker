@@ -5,6 +5,7 @@ import requests
 import json
 import datetime
 import pandas as pd
+from pandas.tseries.offsets import BDay
 
 import logging
 
@@ -87,25 +88,58 @@ def parse買賣超(txt):
     if data['stat'] != 'OK':
         return None
     
-    foreign, domestic, dealer = 0, 0, 0
+    date, foreign, domestic, dealer = 0, 0, 0, 0
     for x in data['data']:
-        # print(x)
+        logit(str(x))
         if x[0][:2] == '自營': dealer += parseFloat(x[3])
         elif x[0][:2] == '投信': domestic += parseFloat(x[3])
         elif x[0][:2] == '外資': foreign += parseFloat(x[3])
-            
-    return foreign, domestic, dealer
+    date = data['params']["dayDate"]
+
+    return date, foreign, domestic, dealer
 
 def get買賣超():
     try:
         url = 'https://www.twse.com.tw/fund/BFI82U?response=json'
         x = sess.get(url).text
-        買賣超 = parse買賣超(x)[0] / 10**8
-        return 買賣超
+        result = parse買賣超(x)
+        date, 買賣超 = result[0], result[1] / 10**8
+        logit("-- {} {}".format(date, 買賣超))
+        return date, 買賣超
     except Exception as ex:
         logit("except: {}".format(ex))
 
-    return 0
+    return date, 0
+
+def get特定日子買賣超(date):
+    try:
+        url = 'https://www.twse.com.tw/fund/BFI82U?response=json&dayDate={}'.format(date)
+        x = sess.get(url).text
+        result = parse買賣超(x)
+        mydate, 買賣超 = result[0], result[1] / 10**8
+        logit("-- {} {} {}".format(date, mydate, 買賣超))
+        return mydate, 買賣超
+    except Exception as ex:
+        logit("except: {}".format(ex))
+
+    return 0, 0
+
+def get三天買賣超(date, 買賣超):
+    count = 1
+    while count < 3:
+        date = PreDay(date)
+        myday, my買賣超 = get特定日子買賣超(date)
+        if myday:
+            買賣超 += my買賣超
+            count += 1
+    return 買賣超
+
+def PreDay(date):
+    date = int(date)
+    myday = datetime.datetime(date // 10000, date // 100 % 100, date % 100)
+    nextday = myday - BDay(1)
+    preday = nextday.year * 10000 + nextday.month * 100 + nextday.day 
+    return preday
 
 def indexPrice():
     dt = datetime.date.today().strftime('%Y-%m-%d')
@@ -124,14 +158,15 @@ def indexPrice():
         if 加權指數>0 and price1>0:
             spread = price1 - 加權指數
         未平倉 = get未平倉()
-        買賣超 = get買賣超()
+        date, 買賣超 = get買賣超()
+        三天買賣超 = get三天買賣超(date, 買賣超)
         
-        msg = '!txinfo [{}]\n加權指數: {}\nTX{}: {}\nTX{}: {}\n正逆價差: {}\n未平倉: {}\n買賣超: {:0.2f}億'.format(
+        msg = '!txinfo [{}]\n加權指數: {}\nTX{}: {}\nTX{}: {}\n正逆價差: {}\n未平倉: {}\n買賣超: {:0.2f}億\n三天買賣超: {:0.2f}億'.format(
             dt,
             加權指數, 
             ym1, price1, ym2, price2,
             spread,
-            未平倉, 買賣超)
+            未平倉, 買賣超, 三天買賣超)
         linebotMessage(msg)
         logit(msg)
 

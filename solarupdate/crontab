@@ -3,3 +3,7 @@
 # 5,20,35,50 * * * * root (python3 /root/gold_update.py)
 50 15 * * 1-5 root (python3 /root/txinfo_update.py)
 0 21 * * * root (cd /dvol/git/solardb-backup; python3 ./solardb-backup.py) >> /dvol/log/solar-backup.log 2>&1
+44 8 * * 1-5 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?sticker=hello) >> /dvol/log/crontab.log 2>&1
+1 15 * * 1-5 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?sticker=bye) >> /dvol/log/crontab.log 2>&1
+# 27 21 * * 1-5 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?sticker=hello) >> /dvol/log/crontab.log 2>&1
+# 16 4 * * 2-6 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?sticker=sleep) >> /dvol/log/crontab.log 2>&1

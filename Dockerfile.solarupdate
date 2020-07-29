@@ -5,12 +5,12 @@ RUN pip3 install --upgrade beautifulsoup4
 RUN pip3 install --upgrade html5lib
 RUN pip3 install python-firebase
 
-ADD solarupdate/crontab /etc/cron.d/mycron
 ADD solarupdate/solar_update.py /root/solar_update.py
 ADD solarupdate/solarpanel_update.py /root/solarpanel_update.py
 ADD solarupdate/solarline_update.py /root/solarline_update.py
 ADD solarupdate/gold_update.py /root/gold_update.py
 ADD solarupdate/txinfo_update.py /root/txinfo_update.py
+ADD solarupdate/crontab /etc/cron.d/mycron
 
 RUN chmod 0644 /etc/cron.d/mycron
 RUN git config --global user.email "mingshing.su@gmail.com"
