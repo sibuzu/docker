@@ -126,7 +126,9 @@ def get特定日子買賣超(date):
 
 def get三天買賣超(date, 買賣超):
     count = 1
-    while count < 3:
+    tcount = 0
+    while count < 3 and tcount < 30:
+        tcount += 1
         date = PreDay(date)
         myday, my買賣超 = get特定日子買賣超(date)
         if myday:
