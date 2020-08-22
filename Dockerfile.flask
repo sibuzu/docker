@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 # Install some dependencies
 RUN apt-get update && apt-get -y upgrade
@@ -11,6 +11,16 @@ RUN pip3 install grequests beautifulsoup4
 RUN pip3 install supervisor
 RUN pip3 install Pillow
 
+# numpy / scipy / sklearn
+RUN pip3 install --upgrade scipy && \
+    pip3 install --upgrade matplotlib && \
+    pip3 install --upgrade numpy && \
+    pip3 install --upgrade sklearn 
+
+# copy font for matplotlib
+RUN mkdir -p /usr/share/fonts/truetype/droid
+ADD develop3/DroidSansFallbackFull.ttf /usr/share/fonts/truetype/droid/
+
 # Set the locale
 RUN apt-get install -y locales
 RUN locale-gen en_US.UTF-8  
@@ -18,10 +28,9 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8
 
-ENV PYTHONPATH $PYTHONPATH:/dvol/git/pylib
+# ENV PYTHONPATH $PYTHONPATH:/dvol/git/pylib
 
-
-EXPOSE 8000
+EXPOSE 8000 8008
 
 ENV FLASK_APP app.py
 ENV FLASK_DEBUG 1
