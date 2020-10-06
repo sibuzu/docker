@@ -1,0 +1,60 @@
+FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu16.04
+
+# python 3.7
+RUN apt-get update && apt-get install -y software-properties-common
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update 
+RUN apt-get install -y python3.7
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 150
+RUN apt-get install -y python3-pip
+RUN pip3 install --upgrade pip
+
+# numpy, matplotlib, scipy, pandas
+RUN pip3 install --upgrade numpy matplotlib pandas
+RUN pip3 install --upgrade scipy sklearn seaborn
+RUN pip3 install --upgrade mplfinance
+
+# beautifulsoup4
+RUN pip3 install --upgrade beautifulsoup4
+
+# opencv
+RUN apt-get install -y libsm6 libxext6 libxrender-dev
+RUN pip3 install --upgrade opencv-python
+
+# xgboost
+RUN pip3 install --upgrade xgboost
+
+# pytorch cuda 8.0
+RUN pip3 install https://download.pytorch.org/whl/cu80/torch-1.0.1-cp37-cp37m-linux_x86_64.whl
+RUN pip3 install --upgrade torchvision==0.2.1
+
+# jupyter
+RUN pip3 install --upgrade jupyter
+
+RUN mkdir -p /notebook && \
+	mkdir -p /root/.jupyter && \
+    echo "c.NotebookApp.password = u'sha1:ce1de9f412b1:534f0ac694d0438a92237706db0c977832f8b83e'" > /root/.jupyter/jupyter_notebook_config.py && \
+    echo "#!/bin/sh" > /root/run_jupyter.sh && \
+    echo "jupyter notebook --allow-root --no-browser --ip=0.0.0.0 --notebook-dir=/dvol/git/notebook3" >> /root/run_jupyter.sh && \
+    chmod a+x /root/run_jupyter.sh
+
+# install pyts
+RUN pip3 install --upgrade pyts
+
+# install font for Chinese characters of matplotlib
+RUN mkdir -p /usr/share/fonts/truetype/droid
+ADD develop3/DroidSansFallbackFull.ttf /usr/share/fonts/truetype/droid/
+
+# Expose PORTS
+EXPOSE 8888
+
+# Set the locale
+RUN locale-gen en_US.UTF-8  
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8
+
+WORKDIR "/dvol/git/notebook3"
+
+CMD ["/root/run_jupyter.sh"]
+

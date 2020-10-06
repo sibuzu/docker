@@ -17,11 +17,18 @@ RUN apt-get install -y xvfb
 RUN pip3 install gym[all]
 RUN pip3 install box2d
 
+# install xgboost
+RUN pip3 install --upgrade pip
+RUN pip3 install xgboost
+
 # install pandoc
-RUN apt-get update 
-RUN apt-get install -y texlive texlive-latex-extra pandoc
-RUN apt-get install -y texlive-xetex
-RUN apt-get install -y texlive-full latex-cjk-all
+# RUN apt-get update 
+# RUN apt-get install -y texlive texlive-latex-extra pandoc
+# RUN apt-get install -y texlive-xetex
+# RUN apt-get install -y texlive-full latex-cjk-all
+
+# install xgboost
+# RUN pip3 install xgboost
 
 # Set the locale
 RUN locale-gen en_US.UTF-8  
