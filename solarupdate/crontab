@@ -6,9 +6,9 @@
 # 8:44, 14:49, 21:27, open market
 44 8 * * 1-5 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?sticker=hello) >> /dvol/log/crontab.log 2>&1
 59 14 * * 1-5 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?sticker=hello) >> /dvol/log/crontab.log 2>&1
-27 21 * * 1-5 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?sticker=hello) >> /dvol/log/crontab.log 2>&1
+27 22 * * 1-5 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?sticker=hello) >> /dvol/log/crontab.log 2>&1
 # 16 4 * * 2-6 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?sticker=sleep) >> /dvol/log/crontab.log 2>&1
 2 9 * * 1-5 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?chart=tx) >> /dvol/log/crontab.log 2>&1
 46 13 * * 1-5 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?chart=tx) >> /dvol/log/crontab.log 2>&1
-33 21 * * 1-5 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?chart=vx) >> /dvol/log/crontab.log 2>&1
-16 4 * * 2-6 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?chart=vx) >> /dvol/log/crontab.log 2>&1
+33 22 * * 1-5 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?chart=vx) >> /dvol/log/crontab.log 2>&1
+16 5 * * 2-6 root (curl https://script.google.com/macros/s/AKfycbxbVNnbeLGx_W7G98o-cZU9nM4VIgdaqpv4BcNLJukfjmsQZHg/exec?chart=vx) >> /dvol/log/crontab.log 2>&1
